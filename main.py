@@ -52,18 +52,20 @@ def render_board(board, ximg, oimg):
 
 def add_XO(board, graphical_board, to_move):
     current_pos = pygame.mouse.get_pos()
-    converted_x = (current_pos[0]-1)/899*17
-    converted_y = (current_pos[1])/900*17
+    
+    # Tính toán vị trí của ô trên bàn cờ dựa trên kích thước thực sự của bàn cờ và ô
+    converted_x = current_pos[0] // 50
+    converted_y = current_pos[1] // 50
     
     # Kiểm tra xem vị trí click có nằm trong phạm vi bàn cờ không
-    if 0 <= round(converted_x) < 18 and 0 <= round(converted_y) < 18:
-        if board[round(converted_y)][round(converted_x)] != 'O' and board[round(converted_y)][round(converted_x)] != 'X':
-            board[round(converted_y)][round(converted_x)] = to_move
+    if 0 <= converted_x < 18 and 0 <= converted_y < 18:
+        if board[converted_y][converted_x] != 'O' and board[converted_y][converted_x] != 'X':
+            board[converted_y][converted_x] = to_move
             if to_move == 'O':
                 to_move = 'X'
             else:
                 to_move = 'O'
-        
+
         render_board(board, X_IMG, O_IMG)
 
         for i in range(18):
@@ -74,6 +76,7 @@ def add_XO(board, graphical_board, to_move):
         pygame.display.update()  # Cập nhật màn hình sau khi thay đổi hình ảnh
 
     return board, to_move
+
 
 game_finished = False
 
@@ -116,8 +119,6 @@ def check_win(board):
                 pygame.display.update()  # Cập nhật màn hình sau khi thay đổi hình ảnh
                 return board[i][j]
     # Kiểm tra đường chéo phụ
-    for i in range(4, 18):
-        for j in range(14):
             if board[i][j] == board[i-1][j+1] == board[i-2][j+2] == board[i-3][j+3] == board[i-4][j+4] != None:
                 print("Win on the secondary diagonal")
                 for k in range(5):
@@ -129,13 +130,12 @@ def check_win(board):
                     SCREEN.blit(graphical_board[i-k][j+k][0], graphical_board[i-k][j+k][1])
                 pygame.display.update()
                 return board[i][j]
-
     # Kiểm tra hòa
-        for i in range(len(board)):
-            for j in range(len(board)):
-                if board[i][j] != 'X' and board[i][j] != 'O':
-                    return None
-        return "DRAW"
+    for i in range(len(board)):
+        for j in range(len(board)):
+            if board[i][j] != 'X' and board[i][j] != 'O':
+                return None
+    return "DRAW"
 
 
 
