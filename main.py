@@ -12,7 +12,7 @@ BOARD = pygame.image.load("assets/Board_18x18.png")
 X_IMG = pygame.image.load("assets/X.png")
 O_IMG = pygame.image.load("assets/O.png")
 
-BG_COLOR = (214, 201, 227)
+BG_COLOR = (255, 250, 205)
 
 # Tạo bàn cờ 18x18 với các giá trị khởi đầu từ 1 đến 324
 board = [[j + 1 + i * 18 for j in range(18)] for i in range(18)]
@@ -30,6 +30,7 @@ def draw_text(text, font, color, surface, x, y):
     text_rect.center = (x, y)
     surface.blit(text_obj, text_rect)
     
+global to_move
 to_move = 'X'
 
 SCREEN.fill(BG_COLOR)
@@ -116,16 +117,17 @@ def check_win(board):
                 return board[i][j]
     # Kiểm tra đường chéo phụ
     for i in range(4, 18):
-        for j in range(4, 18):  # Bắt đầu từ hàng và cột thích hợp
-            if board[i][j] == board[i-1][j-1] == board[i-2][j-2] == board[i-3][j-3] == board[i-4][j-4] != None:
+        for j in range(14):
+            if board[i][j] == board[i-1][j+1] == board[i-2][j+2] == board[i-3][j+3] == board[i-4][j+4] != None:
+                print("Win on the secondary diagonal")
                 for k in range(5):
-                    if board[i-k][j-k] == 'X':
-                        graphical_board[i-k][j-k][0] = pygame.image.load("assets/Winning X.png")
+                    if board[i-k][j+k] == 'X':
+                        graphical_board[i-k][j+k][0] = pygame.image.load("assets/Winning X.png")
                     else:
-                        graphical_board[i-k][j-k][0] = pygame.image.load("assets/Winning O.png")
-                for k in range(5):  # Vẽ hình ảnh lên màn hình
-                    SCREEN.blit(graphical_board[i-k][j-k][0], graphical_board[i-k][j-k][1])
-                pygame.display.update()  # Cập nhật màn hình sau khi thay đổi hình ảnh
+                        graphical_board[i-k][j+k][0] = pygame.image.load("assets/Winning O.png")
+                for k in range(5):
+                    SCREEN.blit(graphical_board[i-k][j+k][0], graphical_board[i-k][j+k][1])
+                pygame.display.update()
                 return board[i][j]
 
     # Kiểm tra hòa
