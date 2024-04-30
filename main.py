@@ -30,6 +30,11 @@ def draw_text(text, font, color, surface, x, y):
     text_rect.center = (x, y)
     surface.blit(text_obj, text_rect)
     
+# Khởi tạo âm nhạc nền
+pygame.mixer.music.load("assets/music_game.mp3")
+pygame.mixer.music.set_volume(0.2)  # Giảm âm lượng xuống 50%
+pygame.mixer.music.play(-1)  # -1 để lặp lại vô hạn
+
 global to_move
 to_move = 'X'
 
@@ -50,6 +55,16 @@ def render_board(board, ximg, oimg):
                 graphical_board[i][j][0] = oimg
                 graphical_board[i][j][1] = oimg.get_rect(center=(j*50+25, i*50+25))
 
+# Tải âm thanh cho X và O
+sound_XO = pygame.mixer.Sound("assets/effect_click.wav")
+
+# Điều chỉnh âm lượng của âm thanh
+sound_XO.set_volume(0.3)
+
+# Hàm để phát âm thanh khi vẽ X hoặc O
+def play_sound_XO():
+    sound_XO.play()
+
 def add_XO(board, graphical_board, to_move):
     current_pos = pygame.mouse.get_pos()
     
@@ -61,6 +76,7 @@ def add_XO(board, graphical_board, to_move):
     if 0 <= converted_x < 18 and 0 <= converted_y < 18:
         if board[converted_y][converted_x] != 'O' and board[converted_y][converted_x] != 'X':
             board[converted_y][converted_x] = to_move
+            play_sound_XO()
             if to_move == 'O':
                 to_move = 'X'
             else:
