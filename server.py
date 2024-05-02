@@ -4,7 +4,7 @@ from _thread import *
 import sys
 
 # Khởi tạo máy chủ
-HOST = "192.168.1.49"
+HOST = "192.168.1.50"
 PORT = 5555
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,31 +18,44 @@ server.listen(2)
 
 print(f"[LISTENING] Server is listening on {HOST}:{PORT}")
 
-def threaded_client(conn):
+def threaded_client(conn, player):
+    conn.send(str.encode("Connected"))
     reply = ""
     while True:
         try:
+            # Nhận dữ liệu từ client
             data = conn.recv(2048)
-            reply - data.decode("utf-8")
+            reply = data.decode("utf-8")
             if not data:
                 print("Disconnected!")
+                break 
             else:
                 print("Recieved: ", reply)
-                print("Sending: ", reply)
-            conn.sendall(str.encode(reply))
+
+            # Gửi dữ liệu đến client còn lại
+            other_player = 1 if player == 0 else 0
+            players[other_player].sendall(str.encode(reply))
         except:
             break
 
-# Lưu trữ danh sách client
-clients = []
-lock = threading.Lock()  # Lock để đồng bộ hóa truy cập đến danh sách clients
+    print("lost connection!!")
+    conn.close()
 
-# Chấp nhận kết nối từ client
-client_id = 0
+players = [None, None]
+player_count = 0
+
 while True:
     conn, addr = server.accept()
     print("conected to:", addr)
 
-    start_new_thread(threaded_client, (conn,))
+    # Gán người chơi cho client
+    players[player_count] = conn
+    player_count += 1
+
+    # Bắt đầu một thread mới cho client mới kết nối
+    start_new_thread(threaded_client, (conn, player_count - 1))
+
+
+
 
 
