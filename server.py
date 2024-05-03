@@ -2,6 +2,8 @@ import socket
 import threading
 from _thread import *
 import sys
+from game import FiveInARow
+import pickle
 
 # Khởi tạo máy chủ
 HOST = "192.168.1.50"
@@ -15,46 +17,48 @@ except socket.error as e:
 
 # Lắng nghe kết nối từ client
 server.listen(2)
-
 print(f"[LISTENING] Server is listening on {HOST}:{PORT}")
 
+games = [FiveInARow(),FiveInARow()]
+
 def threaded_client(conn, player):
-    conn.send(str.encode("Connected"))
+    conn.send(pickle.dumps.games[FiveInARow])
     reply = ""
     while True:
         try:
             # Nhận dữ liệu từ client
-            data = conn.recv(2048)
-            reply = data.decode("utf-8")
+            data = pickle.loads(conn.recv(2048))
+            games[FiveInARow] = data
+
             if not data:
                 print("Disconnected!")
                 break 
             else:
-                print("Recieved: ", reply)
+                if FiveInARow == 1:
+                    reply = games[0]
+                else:
+                    reply = games[1]
 
-            # Gửi dữ liệu đến client còn lại
-            other_player = 1 if player == 0 else 0
-            players[other_player].sendall(str.encode(reply))
+                print("Recieved: ", data)
+                print("Sending: ", reply)
+            
+            conn.sendall(pickle.dumps(reply))
+
         except:
             break
 
     print("lost connection!!")
     conn.close()
 
-players = [None, None]
-player_count = 0
+currentPlayer = 0
 
 while True:
     conn, addr = server.accept()
     print("conected to:", addr)
 
-    # Gán người chơi cho client
-    players[player_count] = conn
-    player_count += 1
-
     # Bắt đầu một thread mới cho client mới kết nối
-    start_new_thread(threaded_client, (conn, player_count - 1))
-
+    start_new_thread(threaded_client, (conn, currentPlayer))
+    currentPlayer += 1
 
 
 
